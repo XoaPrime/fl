@@ -25,7 +25,7 @@
     .message {
       position: absolute;
       color: #ff80d0;
-      font-family: 'Brush Script MT', cursive, sans-serif;
+      font-family: 'Pacifico', cursive, sans-serif;
       font-size: 60px;
       transform: scale(0.5);
       opacity: 0;
@@ -56,12 +56,14 @@
   <script>
     const canvas = document.getElementById("heartCanvas");
     const ctx = canvas.getContext("2d");
+
     function resizeCanvas(){
       canvas.width  = window.innerWidth;
       canvas.height = window.innerHeight;
     }
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
+
     function drawGradientBackground() {
       const grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
       grd.addColorStop(0, "#320032");
@@ -69,6 +71,7 @@
       ctx.fillStyle = grd;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
+
     const starCount = 80;
     const stars = Array.from({length: starCount}, () => ({
       x: Math.random() * canvas.width,
@@ -76,6 +79,7 @@
       radius: Math.random() * 2 + 1,
       twinkle: Math.random()
     }));
+
     function drawStars() {
       stars.forEach(star => {
         star.twinkle += (Math.random() - 0.5) * 0.05;
@@ -88,11 +92,13 @@
         ctx.fill();
       });
     }
+
     function heart(a, scale){
       const x = scale * 16 * Math.sin(a)**3;
       const y = scale * (13*Math.cos(a) - 5*Math.cos(2*a) - 2*Math.cos(3*a) - Math.cos(4*a));
       return { x, y };
     }
+
     function getScale(){
       if(Math.min(canvas.width, canvas.height) < 600) {
         return 12;
@@ -100,57 +106,73 @@
         return 20;
       }
     }
+
     let anglePool = [];
     for (let i = 0; i < 360; i += 2){
       anglePool.push(i);
     }
+
     const drawnLines = [];
     let drawingLine = false;
     let lineProgress = 0;
     let currentAngle = 0;
+
     function drawScene(){
       drawGradientBackground();
       drawStars();
+
       drawnLines.forEach(aDeg => {
         const r = aDeg * Math.PI / 180;
         const {x, y} = heart(r, getScale());
         ctx.strokeStyle = 'pink';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
+        ctx.shadowColor = 'pink';
+        ctx.shadowBlur = 10;
         ctx.beginPath();
         ctx.moveTo(canvas.width / 2, canvas.height / 2);
         ctx.lineTo(canvas.width / 2 + x, canvas.height / 2 - y);
         ctx.stroke();
       });
+
       if (drawingLine){
         const r = currentAngle * Math.PI / 180;
         const {x, y} = heart(r, getScale());
         const px = x * lineProgress;
         const py = y * lineProgress;
         ctx.strokeStyle = 'pink';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
+        ctx.shadowColor = 'pink';
+        ctx.shadowBlur = 10;
         ctx.beginPath();
         ctx.moveTo(canvas.width / 2, canvas.height / 2);
         ctx.lineTo(canvas.width / 2 + px, canvas.height / 2 - py);
         ctx.stroke();
       }
+
+      ctx.shadowBlur = 0;
     }
+
     function animate(){
       if(anglePool.length === 0 && !drawingLine){
         document.getElementById("message").classList.add("show");
         document.getElementById("kitty").style.opacity = 1;
         return;
       }
+
       if(!drawingLine){
         const idx = Math.floor(Math.random() * anglePool.length);
         currentAngle = anglePool.splice(idx, 1)[0];
         drawingLine = true;
         lineProgress = 0;
       }
+
       lineProgress += 0.15;
       if(lineProgress > 1){
         lineProgress = 1;
       }
+
       drawScene();
+
       if(lineProgress >= 1 && drawingLine){
         drawnLines.push(currentAngle);
         drawingLine = false;
@@ -158,6 +180,7 @@
       }
       requestAnimationFrame(animate);
     }
+
     drawScene();
     animate();
   </script>
