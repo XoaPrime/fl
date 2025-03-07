@@ -6,7 +6,7 @@
   <title>Radiating Pink Heart + Hello Kitty</title>
   <style>
     * {
-      margin: 0; 
+      margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
@@ -38,16 +38,6 @@
       transform: scale(1.2); /* Slight bounce effect */
       opacity: 1;
     }
-    /* Hello Kitty image styling */
-    #kitty {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 100px;
-      opacity: 0;
-      transition: opacity 2s;
-      pointer-events: none;
-    }
   </style>
 </head>
 <body>
@@ -55,16 +45,9 @@
 
   <div class="message" id="message">I love you</div>
 
-  <!-- Hello Kitty image embedded as base64 data URI to ensure it always appears -->
-  <img
-    id="kitty"
-    alt="Hello Kitty"
-    src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAAC3CAYAAADgmN1xAAAACXBIWXMAAAsSAAALEgHS3X78AAACCUlEQVR4nO3TMQ7CMBQE0PELlWzwsbQWQUNCDTAtJCHgMo5S92YpdqjiMYzjn9CE6/EAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIKB3fhkZfDGUm9Xb/46+jVp/rchp3UU9dUDTTVSUMINN9SpRAg030qUQINDfSagECAgICAvzn4MevWVzPqzHEbq3nyETMrWhe0xc4j9e3/n465khzXcNMBF4zIc2p9/I5pZ1MkxwgAABAgQIECBAgAABAgQIECBAwA6A3/g+jF0cGtGczIcAAAAASUVORK5CYII="
-  />
-
   <script>
   // ------------------------------------------------------------------------------------
-  // Canvas Setup
+  // 1) Canvas Setup
   // ------------------------------------------------------------------------------------
   const canvas = document.getElementById("heartCanvas");
   const ctx = canvas.getContext("2d");
@@ -77,7 +60,7 @@
   resizeCanvas();
 
   // ------------------------------------------------------------------------------------
-  // Gradient Background
+  // 2) Gradient Background
   // ------------------------------------------------------------------------------------
   function drawGradientBackground() {
     const grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -88,7 +71,7 @@
   }
 
   // ------------------------------------------------------------------------------------
-  // Twinkling Stars
+  // 3) Twinkling Stars
   // ------------------------------------------------------------------------------------
   const starCount = 80;
   const stars = Array.from({length: starCount}, () => ({
@@ -112,7 +95,7 @@
   }
 
   // ------------------------------------------------------------------------------------
-  // Heart Function
+  // 4) Heart Function
   // ------------------------------------------------------------------------------------
   function heart(angle, scale) {
     const x = scale * 16 * Math.sin(angle)**3;
@@ -126,31 +109,31 @@
   }
 
   // ------------------------------------------------------------------------------------
-  // Angle Pool (2° increments). We'll pick randomly.
+  // 5) Angles (2° increments) for random lines
   // ------------------------------------------------------------------------------------
   let anglePool = [];
   for (let i = 0; i < 360; i += 2){
     anglePool.push(i);
   }
 
-  // We'll store completed lines in drawnLines
+  // We'll store completed lines here
   const drawnLines = [];
 
-  let drawingLine = false;   // are we mid-draw
-  let lineProgress = 0;      // how far along the line [0..1]
-  let currentAngle = 0;      // angle (degrees) we are currently drawing
+  let drawingLine = false; // are we mid-draw
+  let lineProgress = 0;    // fraction [0..1]
+  let currentAngle = 0;    // current angle in degrees
 
   // ------------------------------------------------------------------------------------
-  // Draw Scene
+  // 6) Draw Scene
   // ------------------------------------------------------------------------------------
   function drawScene() {
     drawGradientBackground();
     drawStars();
 
-    // fully drawn lines
+    // Fully drawn lines
     drawnLines.forEach(angleDeg => {
       const rad = angleDeg * Math.PI / 180;
-      const {x, y} = heart(rad, 20);
+      const { x, y } = heart(rad, 20);
       ctx.strokeStyle = 'pink';
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -159,12 +142,13 @@
       ctx.stroke();
     });
 
-    // partial line
+    // Partial line
     if (drawingLine) {
       const rad = currentAngle * Math.PI / 180;
-      const {x, y} = heart(rad, 20);
+      const { x, y } = heart(rad, 20);
       const px = x * lineProgress;
       const py = y * lineProgress;
+
       ctx.strokeStyle = 'pink';
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -175,25 +159,25 @@
   }
 
   // ------------------------------------------------------------------------------------
-  // Animate
+  // 7) Animate
   // ------------------------------------------------------------------------------------
   function animate() {
-    // if done with all lines and not drawing => show text & kitty
+    // If done with all lines & not drawing => show text & kitty
     if (anglePool.length === 0 && !drawingLine) {
       document.getElementById("message").classList.add("show");
-      document.getElementById("kitty").style.opacity = 1; // reveal kitty
+      kitty.style.opacity = 1; // reveal kitty
       return;
     }
 
     if (!drawingLine) {
       // pick random angle
-      const randomIndex = Math.floor(Math.random() * anglePool.length);
-      currentAngle = anglePool.splice(randomIndex, 1)[0];
+      const randIndex = Math.floor(Math.random() * anglePool.length);
+      currentAngle = anglePool.splice(randIndex, 1)[0];
       drawingLine = true;
       lineProgress = 0;
     }
 
-    // increment progress (0.1 per frame)
+    // lineProgress increments
     lineProgress += 0.1;
     if (lineProgress > 1) {
       lineProgress = 1;
@@ -201,6 +185,7 @@
 
     drawScene();
 
+    // once done
     if (lineProgress >= 1 && drawingLine) {
       drawnLines.push(currentAngle);
       drawingLine = false;
@@ -209,6 +194,29 @@
     requestAnimationFrame(animate);
   }
 
+  // ------------------------------------------------------------------------------------
+  // 8) Create Hello Kitty in SCRIPT
+  // ------------------------------------------------------------------------------------
+  const kitty = document.createElement('img');
+  kitty.id = 'kitty';
+  kitty.alt = 'Hello Kitty';
+  kitty.style.position = 'absolute';
+  kitty.style.top = '10px';
+  kitty.style.right = '10px';
+  kitty.style.width = '100px';
+  kitty.style.opacity = 0;
+  kitty.style.transition = 'opacity 2s';
+  kitty.style.pointerEvents = 'none';
+
+  // We set the base64 or local path here:
+  // (Using the same base64 data as before, so it always loads)
+  kitty.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAAC3CAYAAADgmN1xAAAACXBIWXMAAAsSAAALEgHS3X78AAACCUlEQVR4nO3TMQ7CMBQE0PELlWzwsbQWQUNCDTAtJCHgMo5S92YpdqjiMYzjn9CE6/EAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIKB3fhkZfDGUm9Xb/46+jVp/rchp3UU9dUDTTVSUMINN9SpRAg030qUQINDfSagECAgICAvzn4MevWVzPqzHEbq3nyETMrWhe0xc4j9e3/n465khzXcNMBF4zIc2p9/I5pZ1MkxwgAABAgQIECBAgAABAgQIECBAwA6A3/g+jF0cGtGczIcAAAAASUVORK5CYII=';
+
+  document.body.appendChild(kitty);  // attach kitty to the DOM
+
+  // ------------------------------------------------------------------------------------
+  // 9) Start up
+  // ------------------------------------------------------------------------------------
   drawScene();
   animate();
   </script>
