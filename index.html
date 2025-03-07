@@ -94,8 +94,11 @@
       return { x, y };
     }
     function getScale(){
-      if(Math.min(canvas.width, canvas.height) < 600) return 12;
-      return 20;
+      if(Math.min(canvas.width, canvas.height) < 600) {
+        return 12;
+      } else {
+        return 20;
+      }
     }
     let anglePool = [];
     for (let i = 0; i < 360; i += 2){
@@ -118,7 +121,7 @@
         ctx.lineTo(canvas.width / 2 + x, canvas.height / 2 - y);
         ctx.stroke();
       });
-      if(drawingLine){
+      if (drawingLine){
         const r = currentAngle * Math.PI / 180;
         const {x, y} = heart(r, getScale());
         const px = x * lineProgress;
@@ -143,8 +146,10 @@
         drawingLine = true;
         lineProgress = 0;
       }
-      lineProgress += 0.1;
-      if(lineProgress > 1) lineProgress = 1;
+      lineProgress += 0.15;
+      if(lineProgress > 1){
+        lineProgress = 1;
+      }
       drawScene();
       if(lineProgress >= 1 && drawingLine){
         drawnLines.push(currentAngle);
