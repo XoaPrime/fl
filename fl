@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I love you</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+            overflow: hidden;
+        }
+        canvas {
+            border: none;
+        }
+        .message {
+            position: absolute;
+            color: white;
+            font-family: 'Courier', monospace;
+            font-size: 28px;
+            font-weight: bold;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="heartCanvas"></canvas>
+    <div class="message">I love you</div>
+
+    <script>
+        const canvas = document.getElementById('heartCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        function heart(t) {
+            return {
+                x: 16 * Math.pow(Math.sin(t), 3),
+                y: 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)
+            };
+        }
+
+        function drawHeart() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+
+            for (let angle = 0; angle <= 2 * Math.PI; angle += 0.05) {
+                let {x, y} = heart(angle);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.strokeStyle = 'deeppink';
+                ctx.lineWidth = 2;
+                ctx.lineTo(x * 15, -y * 15);
+                ctx.stroke();
+            }
+
+            ctx.translate(-canvas.width / 2, -canvas.height / 2);
+        }
+
+        let angle = 0;
+        function animate() {
+            drawHeart();
+            angle += 0.02;
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
