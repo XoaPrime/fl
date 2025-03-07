@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Radiating Pink Heart + Hello Kitty</title>
+  <title>Pink Heart + Hello Kitty</title>
   <style>
     * {
-      margin: 0;
+      margin: 0; 
       padding: 0;
       box-sizing: border-box;
     }
@@ -24,7 +24,7 @@
     }
     .message {
       position: absolute;
-      color: #ff80d0; /* nicer pink shade */
+      color: #ff80d0;
       font-family: 'Brush Script MT', cursive, sans-serif;
       font-size: 60px;
       transform: scale(0.5);
@@ -35,20 +35,36 @@
       text-shadow: 2px 2px 8px #ff0080;
     }
     .message.show {
-      transform: scale(1.2); /* Slight bounce effect */
+      transform: scale(1.2);
       opacity: 1;
+    }
+    /* Hello Kitty styling (invisible until the animation completes) */
+    #kitty {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 100px;
+      opacity: 0;
+      transition: opacity 2s;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
   <canvas id="heartCanvas"></canvas>
-
   <div class="message" id="message">I love you</div>
 
+  <!-- Hello Kitty image base64-embedded so no external link required -->
+  <img
+    id="kitty"
+    alt="Hello Kitty"
+    src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAAABmJLR0QA/wD/AP+gvaeTAAAA0klEQVRIib3WQQrCQBgF4CsULHYFxyQCNTCTyQt8EBK8JM92S052nH/LvCzG7qES3Xhpwp5Nb3KxzZ92/Q8rh2wxfN08unXXgNn7qxXbKKwIDMPD8zZc4rDwgOqsd3JXZaIGs9d4GVE8Qg3XWkBPlNG9dLKYoS0EwDIkIrKpFZdE/bTPYkHLJ6ioKTTb6FZTz0LB7bmZ9APN3svwZpBGE9BIAw7xjnlsq22e/2ZjEh3Rj3jAYzAA0/9svB/D4/AkXKd94j2R2AAAAAElFTkSuQmCC"
+  />
+
   <script>
-  // ------------------------------------------------------------------------------------
+  // ==========================
   // 1) Canvas Setup
-  // ------------------------------------------------------------------------------------
+  // ==========================
   const canvas = document.getElementById("heartCanvas");
   const ctx = canvas.getContext("2d");
 
@@ -59,9 +75,9 @@
   window.addEventListener("resize", resizeCanvas);
   resizeCanvas();
 
-  // ------------------------------------------------------------------------------------
+  // ==========================
   // 2) Gradient Background
-  // ------------------------------------------------------------------------------------
+  // ==========================
   function drawGradientBackground() {
     const grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
     grd.addColorStop(0, "#320032");
@@ -70,9 +86,9 @@
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
-  // ------------------------------------------------------------------------------------
+  // ==========================
   // 3) Twinkling Stars
-  // ------------------------------------------------------------------------------------
+  // ==========================
   const starCount = 80;
   const stars = Array.from({length: starCount}, () => ({
     x: Math.random() * canvas.width,
@@ -94,9 +110,9 @@
     });
   }
 
-  // ------------------------------------------------------------------------------------
+  // ==========================
   // 4) Heart Function
-  // ------------------------------------------------------------------------------------
+  // ==========================
   function heart(angle, scale) {
     const x = scale * 16 * Math.sin(angle)**3;
     const y = scale * (
@@ -108,29 +124,30 @@
     return { x, y };
   }
 
-  // ------------------------------------------------------------------------------------
-  // 5) Angles (2° increments) for random lines
-  // ------------------------------------------------------------------------------------
+  // ==========================
+  // 5) Angles + random drawing
+  // ==========================
+  // We create angles every 2 degrees from 0..360
   let anglePool = [];
   for (let i = 0; i < 360; i += 2){
     anglePool.push(i);
   }
 
-  // We'll store completed lines here
+  // lines we’ve finished drawing
   const drawnLines = [];
 
-  let drawingLine = false; // are we mid-draw
-  let lineProgress = 0;    // fraction [0..1]
-  let currentAngle = 0;    // current angle in degrees
+  let drawingLine = false;
+  let lineProgress = 0;
+  let currentAngle = 0;
 
-  // ------------------------------------------------------------------------------------
+  // ==========================
   // 6) Draw Scene
-  // ------------------------------------------------------------------------------------
+  // ==========================
   function drawScene() {
     drawGradientBackground();
     drawStars();
 
-    // Fully drawn lines
+    // all fully drawn lines
     drawnLines.forEach(angleDeg => {
       const rad = angleDeg * Math.PI / 180;
       const { x, y } = heart(rad, 20);
@@ -142,7 +159,7 @@
       ctx.stroke();
     });
 
-    // Partial line
+    // partial line being drawn
     if (drawingLine) {
       const rad = currentAngle * Math.PI / 180;
       const { x, y } = heart(rad, 20);
@@ -158,35 +175,33 @@
     }
   }
 
-  // ------------------------------------------------------------------------------------
+  // ==========================
   // 7) Animate
-  // ------------------------------------------------------------------------------------
+  // ==========================
   function animate() {
-    // If done with all lines & not drawing => show text & kitty
+    // If no angles left + not drawing => show text & kitty
     if (anglePool.length === 0 && !drawingLine) {
       document.getElementById("message").classList.add("show");
-      kitty.style.opacity = 1; // reveal kitty
+      document.getElementById("kitty").style.opacity = 1;
       return;
     }
 
+    // if we need a new line
     if (!drawingLine) {
-      // pick random angle
-      const randIndex = Math.floor(Math.random() * anglePool.length);
-      currentAngle = anglePool.splice(randIndex, 1)[0];
+      const randomIndex = Math.floor(Math.random() * anglePool.length);
+      currentAngle = anglePool.splice(randomIndex, 1)[0];
       drawingLine = true;
       lineProgress = 0;
     }
 
-    // lineProgress increments
+    // line grows from 0..1
     lineProgress += 0.1;
-    if (lineProgress > 1) {
-      lineProgress = 1;
-    }
+    if (lineProgress > 1) lineProgress = 1;
 
     drawScene();
 
-    // once done
     if (lineProgress >= 1 && drawingLine) {
+      // done drawing line
       drawnLines.push(currentAngle);
       drawingLine = false;
       lineProgress = 0;
@@ -194,29 +209,9 @@
     requestAnimationFrame(animate);
   }
 
-  // ------------------------------------------------------------------------------------
-  // 8) Create Hello Kitty in SCRIPT
-  // ------------------------------------------------------------------------------------
-  const kitty = document.createElement('img');
-  kitty.id = 'kitty';
-  kitty.alt = 'Hello Kitty';
-  kitty.style.position = 'absolute';
-  kitty.style.top = '10px';
-  kitty.style.right = '10px';
-  kitty.style.width = '100px';
-  kitty.style.opacity = 0;
-  kitty.style.transition = 'opacity 2s';
-  kitty.style.pointerEvents = 'none';
-
-  // We set the base64 or local path here:
-  // (Using the same base64 data as before, so it always loads)
-  kitty.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAAC3CAYAAADgmN1xAAAACXBIWXMAAAsSAAALEgHS3X78AAACCUlEQVR4nO3TMQ7CMBQE0PELlWzwsbQWQUNCDTAtJCHgMo5S92YpdqjiMYzjn9CE6/EAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIKB3fhkZfDGUm9Xb/46+jVp/rchp3UU9dUDTTVSUMINN9SpRAg030qUQINDfSagECAgICAvzn4MevWVzPqzHEbq3nyETMrWhe0xc4j9e3/n465khzXcNMBF4zIc2p9/I5pZ1MkxwgAABAgQIECBAgAABAgQIECBAwA6A3/g+jF0cGtGczIcAAAAASUVORK5CYII=';
-
-  document.body.appendChild(kitty);  // attach kitty to the DOM
-
-  // ------------------------------------------------------------------------------------
-  // 9) Start up
-  // ------------------------------------------------------------------------------------
+  // ==========================
+  // 8) Start everything
+  // ==========================
   drawScene();
   animate();
   </script>
