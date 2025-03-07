@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Radiating Pink Heart</title>
+  <title>Radiating Pink Heart + Hello Kitty</title>
   <style>
     * {
-      margin: 0; 
+      margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
@@ -24,7 +24,7 @@
     }
     .message {
       position: absolute;
-      color: #ff80d0; /* Pink text */
+      color: #ff80d0;
       font-family: 'Brush Script MT', cursive, sans-serif;
       font-size: 60px;
       transform: scale(0.5);
@@ -38,31 +38,30 @@
       transform: scale(1.2);
       opacity: 1;
     }
+    #kitty {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 100px;
+      opacity: 0;
+      transition: opacity 2s;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
   <canvas id="heartCanvas"></canvas>
-
-  <!-- The main text -->
   <div class="message" id="message">I love you</div>
-
+  <img id="kitty" alt="Hello Kitty" src="./kitty.png" />
   <script>
-    // ------------------------------------------------------------------------------------
-    // Canvas Setup
-    // ------------------------------------------------------------------------------------
     const canvas = document.getElementById("heartCanvas");
     const ctx = canvas.getContext("2d");
-
     function resizeCanvas(){
       canvas.width  = window.innerWidth;
       canvas.height = window.innerHeight;
     }
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
-
-    // ------------------------------------------------------------------------------------
-    // Gradient Background
-    // ------------------------------------------------------------------------------------
     function drawGradientBackground() {
       const grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
       grd.addColorStop(0, "#320032");
@@ -70,10 +69,6 @@
       ctx.fillStyle = grd;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
-
-    // ------------------------------------------------------------------------------------
-    // Twinkling Stars
-    // ------------------------------------------------------------------------------------
     const starCount = 80;
     const stars = Array.from({length: starCount}, () => ({
       x: Math.random() * canvas.width,
@@ -81,58 +76,41 @@
       radius: Math.random() * 2 + 1,
       twinkle: Math.random()
     }));
-
     function drawStars() {
       stars.forEach(star => {
         star.twinkle += (Math.random() - 0.5) * 0.05;
         if (star.twinkle < 0) star.twinkle = 0;
         if (star.twinkle > 1) star.twinkle = 1;
-        const brightness = 200 + Math.floor(55 * star.twinkle);
-        ctx.fillStyle = `rgb(${brightness}, ${brightness}, ${brightness})`;
+        const b = 200 + Math.floor(55 * star.twinkle);
+        ctx.fillStyle = `rgb(${b},${b},${b})`;
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.radius, 0, 2*Math.PI);
         ctx.fill();
       });
     }
-
-    // ------------------------------------------------------------------------------------
-    // Heart Function
-    // ------------------------------------------------------------------------------------
-    function heart(angle, scale) {
-      const x = scale * 16 * Math.sin(angle)**3;
-      const y = scale * (
-        13*Math.cos(angle)
-        - 5*Math.cos(2*angle)
-        - 2*Math.cos(3*angle)
-        - Math.cos(4*angle)
-      );
+    function heart(a, scale){
+      const x = scale * 16 * Math.sin(a)**3;
+      const y = scale * (13*Math.cos(a) - 5*Math.cos(2*a) - 2*Math.cos(3*a) - Math.cos(4*a));
       return { x, y };
     }
-
-    // ------------------------------------------------------------------------------------
-    // Angles (2° increments). We'll pick randomly
-    // ------------------------------------------------------------------------------------
+    function getScale(){
+      if(Math.min(canvas.width, canvas.height) < 600) return 12;
+      return 20;
+    }
     let anglePool = [];
     for (let i = 0; i < 360; i += 2){
       anglePool.push(i);
     }
-    const drawnLines = []; // completed lines
-
+    const drawnLines = [];
     let drawingLine = false;
     let lineProgress = 0;
     let currentAngle = 0;
-
-    // ------------------------------------------------------------------------------------
-    // Draw Scene
-    // ------------------------------------------------------------------------------------
-    function drawScene() {
+    function drawScene(){
       drawGradientBackground();
       drawStars();
-
-      // Fully drawn lines
-      drawnLines.forEach(angleDeg => {
-        const rad = angleDeg * Math.PI / 180;
-        const {x, y} = heart(rad, 20);
+      drawnLines.forEach(aDeg => {
+        const r = aDeg * Math.PI / 180;
+        const {x, y} = heart(r, getScale());
         ctx.strokeStyle = 'pink';
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -140,11 +118,9 @@
         ctx.lineTo(canvas.width / 2 + x, canvas.height / 2 - y);
         ctx.stroke();
       });
-
-      // Partial line
-      if (drawingLine) {
-        const rad = currentAngle * Math.PI / 180;
-        const {x, y} = heart(rad, 20);
+      if(drawingLine){
+        const r = currentAngle * Math.PI / 180;
+        const {x, y} = heart(r, getScale());
         const px = x * lineProgress;
         const py = y * lineProgress;
         ctx.strokeStyle = 'pink';
@@ -155,44 +131,28 @@
         ctx.stroke();
       }
     }
-
-    // ------------------------------------------------------------------------------------
-    // Animate
-    // ------------------------------------------------------------------------------------
-    function animate() {
-      // if done with all lines + not drawing => show text
-      if (anglePool.length === 0 && !drawingLine) {
+    function animate(){
+      if(anglePool.length === 0 && !drawingLine){
         document.getElementById("message").classList.add("show");
+        document.getElementById("kitty").style.opacity = 1;
         return;
       }
-
-      if (!drawingLine) {
-        // pick random angle from anglePool
-        const randomIndex = Math.floor(Math.random() * anglePool.length);
-        currentAngle = anglePool.splice(randomIndex, 1)[0];
+      if(!drawingLine){
+        const idx = Math.floor(Math.random() * anglePool.length);
+        currentAngle = anglePool.splice(idx, 1)[0];
         drawingLine = true;
         lineProgress = 0;
       }
-
-      // line grows [0..1]
       lineProgress += 0.1;
-      if (lineProgress > 1) {
-        lineProgress = 1;
-      }
-
+      if(lineProgress > 1) lineProgress = 1;
       drawScene();
-
-      // line done
-      if (lineProgress >= 1 && drawingLine) {
+      if(lineProgress >= 1 && drawingLine){
         drawnLines.push(currentAngle);
         drawingLine = false;
         lineProgress = 0;
       }
-
       requestAnimationFrame(animate);
     }
-
-    // Start
     drawScene();
     animate();
   </script>
