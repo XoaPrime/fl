@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Radiating Pink Heart + Hello Kitty</title>
+  <title>Radiating Pink Heart</title>
   <style>
     * {
       margin: 0; 
@@ -38,16 +38,6 @@
       transform: scale(1.2);
       opacity: 1;
     }
-    /* Hello Kitty (hidden at first) */
-    #kitty {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 100px;
-      opacity: 0;
-      transition: opacity 2s;
-      pointer-events: none;
-    }
   </style>
 </head>
 <body>
@@ -55,13 +45,6 @@
 
   <!-- The main text -->
   <div class="message" id="message">I love you</div>
-
-  <!-- Local Hello Kitty image in the same folder -->
-  <img
-    id="kitty"
-    alt="Hello Kitty"
-    src="./kitty.png"
-  />
 
   <script>
     // ------------------------------------------------------------------------------------
@@ -177,10 +160,9 @@
     // Animate
     // ------------------------------------------------------------------------------------
     function animate() {
-      // if done with all lines + not drawing => show text & kitty
+      // if done with all lines + not drawing => show text
       if (anglePool.length === 0 && !drawingLine) {
         document.getElementById("message").classList.add("show");
-        document.getElementById("kitty").style.opacity = 1; // show kitty
         return;
       }
 
